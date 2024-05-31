@@ -1,66 +1,71 @@
-P16 assembler v1.5 (Feb  9 2024)	c:\Users\mcdnv\Desktop\save\ISEL\AC\Trabalho-final-AC\Controlador de sem�foros.lst	Thu May 23 19:32:15 2024
+P16 assembler v1.5 (Feb  9 2024)	c:\Users\mcdnv\Desktop\save\ISEL\AC\Trabalho-final-AC\Controlador de sem�foros.lst	Fri May 31 22:28:34 2024
 
 Sections
 Index   Name            Address   Size
-0       startup         0000      000E 14
-1       .text           000E      00D2 210
-2       .data           00E0      0010 16
-3       .stack          00F0      0040 64
+0       startup         0000      0012 18
+1       .text           0012      0122 290
+2       .data           0134      0012 18
+3       .stack          0146      0040 64
 
 Symbols
 Name                    Type      Value       Section
-_start                  LABEL     0004 4      startup
-blink_get_ticks         LABEL     007A 122    .text
-blink_reset             LABEL     006E 110    .text
-blink_tick              LABEL     00E0 224    .data
-blink_tick_addr         LABEL     00D6 214    .text
+_start                  LABEL     0006 6      startup
+blink_get_ticks         LABEL     00C4 196    .text
+blink_reset             LABEL     0082 130    .text
+blink_tick              LABEL     0134 308    .data
+blink_tick_addr         LABEL     00CE 206    .text
 BLINK_TIME              ABSOLUTE  0005 5      startup
-CLK_FREQ                ABSOLUTE  0063 99     startup
+CLK_FREQ                ABSOLUTE  0001 1      startup
 CONFIG_MASK             ABSOLUTE  0010 16     startup
-config_mode             LABEL     0020 32     .text
-config_mode_return      LABEL     0034 52     .text
+config_mode             LABEL     002E 46     .text
+config_mode_return      LABEL     003E 62     .text
 CPSR_BIT_I              ABSOLUTE  0010 16     startup
-crossing_time           LABEL     00E2 226    .data
-crossing_time_addr      LABEL     00DA 218    .text
-current_cross_t_addr    LABEL     00DC 220    .text
-current_crossing_t      LABEL     00EC 236    .data
+crossing_time           LABEL     0136 310    .data
+crossing_time_addr      LABEL     012E 302    .text
+current_cross_t_addr    LABEL     0130 304    .text
+current_crossing_t      LABEL     0140 320    .data
 GREEN                   ABSOLUTE  0002 2      startup
 INPORT_ADDRESS          ABSOLUTE  FF80 65408  startup
-inport_read             LABEL     0086 134    .text
-isr                     LABEL     0046 70     .text
-isr_jump                LABEL     0062 98     .text
+inport_read             LABEL     00D8 216    .text
+isr                     LABEL     005A 90     .text
+isr_addr                LABEL     0132 306    .text
+isr_jump                LABEL     0076 118    .text
 L1                      ABSOLUTE  0000 0      startup
 L2                      ABSOLUTE  0002 2      startup
 L3                      ABSOLUTE  0004 4      startup
-LED_blink               LABEL     0036 54     .text
-LED_blink_return        LABEL     0044 68     .text
-line#31                 LABEL     0002 2      startup
-main                    LABEL     000E 14     .text
-main_addr               LABEL     000C 12     startup
-main_loop               LABEL     001A 26     .text
+LED_blink               LABEL     0040 64     .text
+LED_blink_return        LABEL     0058 88     .text
+LED_state               LABEL     0144 324    .data
+LED_state_addr          LABEL     00C2 194    .text
+LED_state_reset         LABEL     00AC 172    .text
+LED_state_toggle        LABEL     0092 146    .text
+main                    LABEL     0014 20     .text
+main_addr               LABEL     0010 16     startup
+main_loop               LABEL     002A 42     .text
 OUTPORT_ADDRESS         ABSOLUTE  FFC0 65472  startup
-outport_write           LABEL     008E 142    .text
+outport_img             LABEL     0145 325    .data
+outport_write           LABEL     00E0 224    .text
 PB_MASK                 ABSOLUTE  0001 1      startup
 PTC_ADDRESS             ABSOLUTE  FF40 65344  startup
-ptc_clr_irq             LABEL     00CE 206    .text
+ptc_clr_irq             LABEL     0124 292    .text
 PTC_CMD_START           ABSOLUTE  0000 0      startup
 PTC_CMD_STOP            ABSOLUTE  0001 1      startup
-ptc_get_value           LABEL     00C6 198    .text
-ptc_init                LABEL     0096 150    .text
-ptc_restart             LABEL     00BE 190    .text
-ptc_start               LABEL     00AA 170    .text
-ptc_stop                LABEL     00B4 180    .text
+ptc_get_value           LABEL     011C 284    .text
+ptc_init                LABEL     00E8 232    .text
+ptc_restart             LABEL     0114 276    .text
+ptc_start               LABEL     0100 256    .text
+ptc_stop                LABEL     010A 266    .text
 PTC_TC                  ABSOLUTE  0004 4      startup
 PTC_TCR                 ABSOLUTE  0000 0      startup
 PTC_TIR                 ABSOLUTE  0006 6      startup
 PTC_TMR                 ABSOLUTE  0002 2      startup
 RED                     ABSOLUTE  0001 1      startup
 STACK_SIZE              ABSOLUTE  0040 64     startup
-stack_top               LABEL     0130 304    .stack
-stack_top_addr          LABEL     00DE 222    .text
-time                    LABEL     00EE 238    .data
-time_addr               LABEL     00D8 216    .text
-time_get_ticks          LABEL     0080 128    .text
+stack_top               LABEL     0186 390    .stack
+stack_top_addr          LABEL     0012 18     .text
+time                    LABEL     0142 322    .data
+time_addr               LABEL     00D6 214    .text
+time_get_ticks          LABEL     00D0 208    .text
 TIME_MASK               ABSOLUTE  00E0 224    startup
 YELLOW                  ABSOLUTE  0003 3      startup
 
@@ -88,259 +93,328 @@ Code listing
   21          		.equ	PTC_CMD_STOP, 1        ; Comando para parar a contagem no pTC
   22           	
   23           	
-  24          		.equ	CLK_FREQ, 0x63;Hz      ; tempo para fazer interrupt 0.1s
-  25           	
+  24          		.equ	CLK_FREQ, 0x1; 0x63Hz quando clock é 1kHz      ; tempo para fazer interrupt 0.1s
+  25           	                        ;1 quando clock é 10 Hz
   26          	    .equ    BLINK_TIME, 5 ; (500 ms)
   27           	
   28           	
   29           	.section startup
-  30 0000 01 58	    b   _start
-  31 0002 FF 5B	    b   .   ; meter isr com o propósito de aumentar a variavel crossing_time
-  32           	_start:
-  33 0004 ED 6D	    mov sp, #stack_top_addr
-  34 0006 80 B7	    mov r0, pc
-  35 0008 0E A2	    add lr, r0, #4
-  36 000A 0F 0C	    ldr pc, main_addr
-  37           	
-  38           	main_addr:
-  39 000C 0E 00	    .word main
-  40           	
-  41           	    .text
-  42           	main:
-  43 000E 30 66	    mov r0,#CLK_FREQ
-  44 0010 42 5C	    bl ptc_init
-  45 0012 60 B0		mrs	r0, cpsr
-  46 0014 01 61		mov	r1, #CPSR_BIT_I
-  47 0016 80 C8		orr	r0, r0, r1
-  48 0018 40 B0		msr	cpsr, r0
-  49           	main_loop:
-  50 001A 35 5C	    bl inport_read
-  51 001C 01 5C	    bl config_mode
-  52           	
-  53 001E FD 5B	    b main_loop
-  54           	
-  55           	
-  56           	; Rotina:    config_check
-  57           	; Descricao: verifica config
-  58           	; Entradas:  R0 - valor adquirido do porto de entrada
-  59           	; Saidas:    
-  60           	; Efeitos:   R1- temp  R2- time
-  61           	config_mode:
-  62 0020 01 61	    mov r1, #CONFIG_MASK ; Verificar se Config == 1
-  63 0022 82 C0	    and r2, r0, r1
-  64 0024 07 44	    bne config_mode_return 
-  65 0026 01 6E	    mov r1, #TIME_MASK ; Verificar qual é o time no inport
-  66 0028 82 C0	    and r2, r0, r1 ; current crossing time
-  67 002A A1 6D	    mov r1, #crossing_time_addr
-  68 002C A2 E0	    lsl r2, r2, #1
-  69 002E 10 11	    ldr r0, [r1, r2]
-  70 0030 C1 6E	    mov r1, #current_crossing_t ; mudar o current time
-  71 0032 10 20	    str r0, [r1]
-  72           	config_mode_return:
-  73 0034 0F B7	    mov pc, lr
-  74           	
-  75           	LED_blink: ; assumindo que começa do 0
-  76 0036 31 60	    mov r1, #YELLOW << L1 ; meter traffic lights a amarelo
-  77 0038 42 60	    mov r2, #RED << L2 ; Meter pedestrian lights a vermlho
-  78 003A A3 C0	    and r3, r2, r1 ; L1 a amarelo e L2 a vermelho
-  79 003C 1E 5C	    bl blink_get_ticks
-  80 003E 52 60	    mov r2, #5
-  81 0040 00 B9	    cmp r0,r2
-  82 0042 00 4C	    blo LED_blink_return
-  83           	
-  84           	
-  85           	LED_blink_return:
-  86 0044 0F B7	    mov pc, lr
-  87           	
-  88           	; Rotina:    isr
-  89           	; Descricao: Incrementa o valor da variável global time e blink_tick.
-  90           	; Entradas:  -
-  91           	; Saidas:    -
-  92           	; Efeitos:   incrementa a variável time_addr e blink_tick
-  93           	isr:
-  94 0046 0E 24		push lr
-  95 0048 00 24		push r0
-  96 004A 01 24		push r1
-  97 004C 02 24	    push r2
-  98 004E 61 6D	    mov r1, #blink_tick_addr
-  99 0050 12 00	    ldr r2,[r1]
- 100 0052 92 A0		add r2,r1,#1 ; somar blink_tick
- 101 0054 10 20		str r0,[r1]
- 102 0056 81 6D	    mov r1, #time_addr
- 103 0058 10 00		ldr r0, [r1]
- 104 005A 01 60	    mov r1, #0
- 105 005C 80 B8	    cmp r0, r1
- 106 005E 01 40	    beq isr_jump
- 107 0060 80 A8	    sub r0,r0,#1 ; subtrair 1 a time
- 108           	isr_jump:    
- 109 0062 35 5C		bl ptc_clr_irq
- 110 0064 02 04	    pop r2
- 111 0066 01 04		pop r1
- 112 0068 00 04		pop r0
- 113 006A 0E 04		pop lr
- 114 006C 20 B0		movs pc, lr
- 115           	
- 116           	
- 117           	; Rotina:    clk_init
- 118           	; Descricao: Inicia uma nova contagem no periferico pTC com o intervalo de
- 119           	;            contagem recebido em R0, em ticks, limpando eventuais pedidos de
- 120           	;            interrupcao pendentes e iniciando com o valor zero a variavel
- 121           	;            global clk.
- 122           	; Entradas:  R0 - Valor do novo intervalo de contagem, em ticks.
- 123           	; Saidas:    -
- 124           	; Efeitos:   Inicia a contagem no periferico a partir do valor zero, limpando
- 125           	;            eventuais pedidos de interrupcao pendentes e iniciando com o
- 126           	;            valor zero a variavel global sysclk
- 127           	blink_reset:
- 128 006E 0E 24		push lr
- 129 0070 61 6D		mov r1, #blink_tick_addr
- 130 0072 02 60		mov r2, #0
- 131 0074 12 20		str r2, [r1]
- 132 0076 0F 5C		bl ptc_init
- 133 0078 0F 04		pop pc
- 134           	
+  30 0000 02 58	    b   _start
+  31 0002 A0 65	    mov r0, #isr
+  32 0004 0F B0	    mov pc, r0   ; isr com o propósito de aumentar a variavel crossing_time
+  33           	_start:
+  34 0006 20 61	    mov r0, #stack_top_addr
+  35 0008 0D 00	    ldr sp, [r0]
+  36 000A 80 B7	    mov r0, pc
+  37 000C 0E A2	    add lr, r0, #4
+  38 000E 0F 0C	    ldr pc, main_addr
+  39           	
+  40           	main_addr:
+  41 0010 14 00	    .word main
+  42           	
+  43           	    .text
+  44           	stack_top_addr:
+  45 0012 86 01	    .word stack_top
+  46           	
+  47           	
+  48           	main:
+  49 0014 36 5C	    bl blink_reset
+  50 0016 00 60	    mov r0, #0
+  51 0018 21 6C	    mov	r1, #LED_state_addr
+  52 001A 10 20	    str r0, [r1]
+  53 001C 61 5C	    bl outport_write
+  54 001E 10 60	    mov r0,#CLK_FREQ
+  55 0020 63 5C	    bl ptc_init
+  56 0022 60 B0		mrs	r0, cpsr
+  57 0024 01 61		mov	r1, #CPSR_BIT_I
+  58 0026 80 C8		orr	r0, r0, r1
+  59 0028 40 B0		msr	cpsr, r0
+  60           	main_loop:
+  61           	    ;bl inport_read
+  62           	    ;bl config_mode
+  63           	    ;bl blink_get_ticks
+  64           	    ;bl outport_write
+  65 002A 0A 5C	    bl LED_blink
+  66           	
+  67 002C FE 5B	    b main_loop
+  68           	
+  69           	
+  70           	; Rotina:    config_check
+  71           	; Descricao: verifica config
+  72           	; Entradas:  R0 - valor adquirido do porto de entrada
+  73           	; Saidas:    
+  74           	; Efeitos:   R1- temp  R2- time
+  75           	config_mode:
+  76 002E 01 61	    mov r1, #CONFIG_MASK ; Verificar se Config == 1
+  77 0030 82 C0	    and r2, r0, r1
+  78 0032 05 44	    bne config_mode_return 
+  79 0034 01 6E	    mov r1, #TIME_MASK ; Verificar qual é o time no inport
+  80 0036 82 C0	    and r2, r0, r1 ; current crossing time
+  81           	    ;mov r1, #crossing_time_addr
+  82 0038 A2 E0	    lsl r2, r2, #1
+  83 003A 10 11	    ldr r0, [r1, r2]
+  84           	    ;mov r1, #current_crossing_t ; mudar o current time
+  85 003C 10 20	    str r0, [r1]
+  86           	config_mode_return:
+  87 003E 0F B7	    mov pc, lr
+  88           	
+  89           	LED_blink:
+  90 0040 0E 24	    push lr
+  91 0042 34 60	    mov r4, #YELLOW << L1 ; meter traffic lights a amarelo
+  92 0044 45 60	    mov r5, #RED << L2 ; Meter pedestrian lights a vermlho (é melhor meter isto quando entra no config!!!)
+  93           	    ;orr r3, r4, r5 ; L1 a amarelo e L2 a vermelho 
+  94 0046 3E 5C	    bl blink_get_ticks
+  95 0048 53 60	    mov r3, #5
+  96 004A 80 B9	    cmp r0,r3
+  97 004C 05 4C	    blo LED_blink_return
+  98 004E 00 B2	    mov r0,r4
+  99 0050 20 5C	    bl LED_state_toggle
+ 100 0052 80 CA	    orr r0,r0,r5
+ 101 0054 45 5C	    bl outport_write
+ 102 0056 15 5C	    bl blink_reset
+ 103           	LED_blink_return:
+ 104 0058 0F 04	    pop pc
+ 105           	
+ 106           	
+ 107           	
+ 108           	; Rotina:    isr
+ 109           	; Descricao: Incrementa o valor da variável global time e blink_tick.
+ 110           	; Entradas:  -
+ 111           	; Saidas:    -
+ 112           	; Efeitos:   incrementa a variável time_addr e blink_tick
+ 113           	isr:
+ 114 005A 0E 24		push lr
+ 115 005C 00 24		push r0
+ 116 005E 01 24		push r1
+ 117 0060 02 24	    push r2
+ 118 0062 E1 6C	    mov r1, #blink_tick_addr
+ 119 0064 10 00	    ldr r0,[r1]
+ 120 0066 80 A0		add r0,r0,#1 ; somar blink_tick
+ 121 0068 10 20		str r0,[r1]
+ 122 006A 61 6D	    mov r1, #time_addr
+ 123 006C 10 00		ldr r0, [r1]
+ 124 006E 01 60	    mov r1, #0
+ 125 0070 80 B8	    cmp r0, r1
+ 126 0072 01 40	    beq isr_jump
+ 127 0074 80 A8	    sub r0,r0,#1 ; subtrair 1 a time
+ 128           	isr_jump:    
+ 129 0076 56 5C		bl ptc_clr_irq
+ 130 0078 02 04	    pop r2
+ 131 007A 01 04		pop r1
+ 132 007C 00 04		pop r0
+ 133 007E 0E 04		pop lr
+ 134 0080 20 B0		movs pc, lr
  135           	
- 136           	; Rotina:    sysclk_get_ticks
- 137           	; Descricao: Devolve o valor corrente da variável global sysclk.
- 138           	;            Interface exemplo: uint16_t sysclk_get_ticks ( );
- 139           	; Entradas:  -
- 140           	; Saidas:    r0 - CLK
- 141           	; Efeitos:   -
- 142           	blink_get_ticks:
- 143 007A 61 6D		mov r1, #blink_tick_addr
- 144 007C 10 00		ldr r0, [r1]
- 145 007E 0F B7		mov pc, lr
- 146           	
- 147           	time_get_ticks:
- 148 0080 81 6D		mov r1, #time_addr
- 149 0082 10 00		ldr r0, [r1]
- 150 0084 0F B7		mov pc, lr
- 151           	
- 152           	
- 153           	; Rotina:    inport_read
- 154           	; Descricao: Adquire e devolve o valor corrente do porto de entrada.
- 155           	; Entradas:  -
- 156           	; Saidas:    R0 - valor adquirido do porto de entrada
- 157           	; Efeitos:   -
- 158           	inport_read:
- 159 0086 01 68	    mov	r1, #INPORT_ADDRESS & 0xFF
- 160 0088 F1 7F	    movt r1, #INPORT_ADDRESS >> 8 
- 161 008A 10 08	    ldrb r0, [r1, #0]
- 162 008C 0F B7		mov	pc, lr
- 163           	
- 164           	; Rotina:    outport_write
- 165           	; Descricao: Escreve no porto de saida o valor recebido em R0.
- 166           	; Entradas:  R0 - valor a atribuir ao porto de saida.
- 167           	; Saidas:    -
- 168           	; Efeitos:   -
- 169           	outport_write:
- 170 008E 01 6C	    mov	r1, #OUTPORT_ADDRESS & 0xFF
- 171 0090 F1 7F	    movt r1, #OUTPORT_ADDRESS >> 8
- 172 0092 10 28		strb r0, [r1, #0]
- 173 0094 0F B7		mov	pc, lr
- 174           	
- 175           	; Rotina:    ptc_init
- 176           	; Descricao: Faz a iniciacao do periférico pTC, habilitando o seu funcionamento
- 177           	;            em modo continuo e com o intervalo de contagem recebido em R0, em
- 178           	;            ticks.
- 179           	; Entradas:  R0 - Valor do novo intervalo de contagem, em ticks.
- 180           	; Saidas:    -
- 181           	; Efeitos:   Inicia a contagem no periferico a partir do valor zero, limpando
- 182           	;            o pedido de interrupcao eventualmente pendente.
- 183           	ptc_init:
- 184 0096 0E 24	    push    lr
- 185 0098 01 64	    mov	r1, #PTC_ADDRESS & 0xFF
- 186 009A F1 7F	    movt r1, #PTC_ADDRESS >> 8 
- 187 009C 12 60		mov	r2, #PTC_CMD_STOP
- 188 009E 12 28		strb	r2, [r1, #PTC_TCR]
- 189 00A0 10 29		strb	r0, [r1, #PTC_TMR]
- 190 00A2 15 5C	    bl  ptc_clr_irq
- 191 00A4 02 60		mov	r2, #PTC_CMD_START
- 192 00A6 12 28		strb	r2, [r1, #PTC_TCR]
- 193 00A8 0F 04		pop pc
- 194           	
- 195           	; Rotina:    ptc_start
- 196           	; Descricao: Habilita a contagem no periferico pTC.
- 197           	; Entradas:  -
- 198           	; Saidas:    -
- 199           	; Efeitos:   -
- 200           	ptc_start:
- 201 00AA 00 64		mov	r0, #PTC_ADDRESS & 0xFF
- 202 00AC F0 7F	    movt r0, #PTC_ADDRESS >> 8 
- 203 00AE 01 60		mov	r1, #PTC_CMD_START
- 204 00B0 01 28		strb	r1, [r0, #PTC_TCR]
- 205 00B2 0F B7		mov	pc, lr
- 206           	
- 207           	; Rotina:    ptc_stop
- 208           	; Descricao: Para a contagem no periferico pTC.
- 209           	; Entradas:  -
- 210           	; Saidas:    -
- 211           	; Efeitos:   O valor do registo TC do periferico e colocado a zero.
- 212           	ptc_stop:
- 213 00B4 00 64	    mov	r0, #PTC_ADDRESS & 0xFF
- 214 00B6 F0 7F	    movt r0, #PTC_ADDRESS >> 8 
- 215 00B8 11 60		mov	r1, #PTC_CMD_STOP
- 216 00BA 01 28		strb	r1, [r0, #PTC_TCR]
- 217 00BC 0F B7		mov	pc, lr
- 218           	
- 219           	ptc_restart:
- 220 00BE 0E 24	    push lr
- 221 00C0 F9 5F	    bl ptc_stop
- 222 00C2 F3 5F	    bl ptc_start
- 223 00C4 0F 04	    pop pc
+ 136           	
+ 137           	; Rotina:    clk_init
+ 138           	; Descricao: Inicia uma nova contagem no periferico pTC com o intervalo de
+ 139           	;            contagem recebido em R0, em ticks, limpando eventuais pedidos de
+ 140           	;            interrupcao pendentes e iniciando com o valor zero a variavel
+ 141           	;            global clk.
+ 142           	; Entradas:  R0 - Valor do novo intervalo de contagem, em ticks.
+ 143           	; Saidas:    -
+ 144           	; Efeitos:   Inicia a contagem no periferico a partir do valor zero, limpando
+ 145           	;            eventuais pedidos de interrupcao pendentes e iniciando com o
+ 146           	;            valor zero a variavel global sysclk
+ 147           	blink_reset:
+ 148 0082 01 24	    push r1
+ 149 0084 00 24	    push r0
+ 150 0086 E1 6C		mov r1, #blink_tick_addr
+ 151 0088 02 60		mov r2, #0
+ 152 008A 12 20		str r2, [r1]
+ 153           		;bl ptc_init
+ 154 008C 00 04	    pop r0
+ 155 008E 01 04	    pop r1
+ 156 0090 0F B7		mov pc, lr
+ 157           	
+ 158           	;r0- bits to toggle(mask) r2- LED_state
+ 159           	LED_state_toggle: ; FAZER e state reset
+ 160 0092 01 24	    push r1
+ 161 0094 02 24	    push r2
+ 162 0096 03 24	    push r3
+ 163 0098 23 6C	    mov	r3, #LED_state_addr
+ 164 009A 32 00	    ldr r2, [r3]
+ 165 009C 21 D0	    eor r1, r2, r0
+ 166 009E 10 C0	    and r0, r1,r0
+ 167 00A0 30 20	    str r0, [r3]
+ 168 00A2 01 60	    mov r1, #0
+ 169 00A4 03 04	    pop r3
+ 170 00A6 02 04	    pop r2
+ 171 00A8 01 04	    pop r1
+ 172 00AA 0F B7	    mov pc, lr
+ 173           	
+ 174           	LED_state_reset:
+ 175 00AC 01 24	    push r1
+ 176 00AE 02 24	    push r2
+ 177 00B0 03 24	    push r3
+ 178 00B2 21 6C	    mov	r1, #LED_state_addr
+ 179 00B4 12 00	    ldr r2, [r1]
+ 180 00B6 03 60	    mov r3, #0
+ 181 00B8 13 20	    str r3,[r1]
+ 182 00BA 03 04	    pop r3
+ 183 00BC 02 04	    pop r2
+ 184 00BE 01 04	    pop r1
+ 185 00C0 0F B7	    mov pc, lr
+ 186           	
+ 187           	LED_state_addr:
+ 188 00C2 44 01	    .word LED_state
+ 189           	
+ 190           	; Rotina:    sysclk_get_ticks
+ 191           	; Descricao: Devolve o valor corrente da variável global sysclk.
+ 192           	;            Interface exemplo: uint16_t sysclk_get_ticks ( );
+ 193           	; Entradas:  -
+ 194           	; Saidas:    r0 - CLK
+ 195           	; Efeitos:   -
+ 196           	blink_get_ticks:
+ 197 00C4 01 24	    push r1
+ 198 00C6 E1 6C		mov r1, #blink_tick_addr
+ 199 00C8 10 00		ldr r0, [r1]
+ 200 00CA 01 04	    pop r1
+ 201 00CC 0F B7		mov pc, lr
+ 202           	
+ 203           	blink_tick_addr:
+ 204 00CE 34 01	    .word blink_tick
+ 205           	
+ 206           	time_get_ticks:
+ 207 00D0 61 6D		mov r1, #time_addr
+ 208 00D2 10 00		ldr r0, [r1]
+ 209 00D4 0F B7		mov pc, lr
+ 210           	
+ 211           	time_addr:
+ 212 00D6 42 01	    .word time
+ 213           	
+ 214           	; Rotina:    inport_read
+ 215           	; Descricao: Adquire e devolve o valor corrente do porto de entrada.
+ 216           	; Entradas:  -
+ 217           	; Saidas:    R0 - valor adquirido do porto de entrada
+ 218           	; Efeitos:   -
+ 219           	inport_read:
+ 220 00D8 01 68	    mov	r1, #INPORT_ADDRESS & 0xFF
+ 221 00DA F1 7F	    movt r1, #INPORT_ADDRESS >> 8 
+ 222 00DC 10 08	    ldrb r0, [r1, #0]
+ 223 00DE 0F B7		mov	pc, lr
  224           	
- 225           	; Rotina:    ptc_get_value
- 226           	; Descricao: Devolve o valor corrente da contagem do periferico pTC.
- 227           	; Entradas:  -
- 228           	; Saidas:    R0 - O valor corrente do registo TC do periferico.
+ 225           	; Rotina:    outport_write
+ 226           	; Descricao: Escreve no porto de saida o valor recebido em R0.
+ 227           	; Entradas:  R0 - valor a atribuir ao porto de saida.
+ 228           	; Saidas:    -
  229           	; Efeitos:   -
- 230           	ptc_get_value:
- 231 00C6 01 64	    mov	r1, #PTC_ADDRESS & 0xFF
- 232 00C8 F1 7F	    movt r1, #PTC_ADDRESS >> 8 
- 233 00CA 10 0A		ldrb	r0, [r1, #PTC_TC]
- 234 00CC 0F B7		mov	pc, lr
+ 230           	outport_write:
+ 231 00E0 01 6C	    mov	r1, #OUTPORT_ADDRESS & 0xFF
+ 232 00E2 F1 7F	    movt r1, #OUTPORT_ADDRESS >> 8
+ 233 00E4 10 28		strb r0, [r1, #0]
+ 234 00E6 0F B7		mov	pc, lr
  235           	
- 236           	; Rotina:    ptc_clr_irq
- 237           	; Descricao: Sinaliza o periferico pTC que foi atendido um pedido de
- 238           	;            interrupção.
- 239           	; Entradas:  -
- 240           	; Saidas:    -
- 241           	; Efeitos:   -
- 242           	ptc_clr_irq:
- 243 00CE 00 64	    mov	r0, #PTC_ADDRESS & 0xFF
- 244 00D0 F0 7F	    movt r0, #PTC_ADDRESS >> 8 
- 245 00D2 01 2B		strb	r1, [r0, #PTC_TIR]
- 246 00D4 0F B7		mov	pc, lr
- 247           	
- 248           	blink_tick_addr:
- 249 00D6 E0 00	    .word blink_tick
- 250           	
- 251           	time_addr:
- 252 00D8 EE 00	    .word time
- 253           	
- 254           	crossing_time_addr:
- 255 00DA E2 00	    .word crossing_time
- 256           	
- 257           	current_cross_t_addr:
- 258 00DC EC 00	    .word current_crossing_t
- 259           	
- 260           	stack_top_addr:
- 261 00DE 30 01	    .word stack_top
- 262           	
- 263           	    .data
- 264           	blink_tick:
- 265 00E0 00 00	    .word 0
- 266           	crossing_time:
- 267          	    .word 10, 20, 30, 45, 60
- 267 00E2 0A 00 14 00 1E 00 2D 00 3C 00
- 268           	current_crossing_t:
- 269 00EC 0A 00	    .word 10
- 270           	time:
- 271 00EE 00 00	    .word 0
- 272           	
- 273           	    .stack
- 274 00F0 00   	    .space STACK_SIZE
- 274 .... ..
- 274 012F 00
- 275           	stack_top:
- 275           	
+ 236           	; Rotina:    ptc_init
+ 237           	; Descricao: Faz a iniciacao do periférico pTC, habilitando o seu funcionamento
+ 238           	;            em modo continuo e com o intervalo de contagem recebido em R0, em
+ 239           	;            ticks.
+ 240           	; Entradas:  R0 - Valor do novo intervalo de contagem, em ticks.
+ 241           	; Saidas:    -
+ 242           	; Efeitos:   Inicia a contagem no periferico a partir do valor zero, limpando
+ 243           	;            o pedido de interrupcao eventualmente pendente.
+ 244           	ptc_init:
+ 245 00E8 0E 24	    push    lr
+ 246 00EA 01 64	    mov	r1, #PTC_ADDRESS & 0xFF
+ 247 00EC F1 7F	    movt r1, #PTC_ADDRESS >> 8 
+ 248 00EE 12 60		mov	r2, #PTC_CMD_STOP
+ 249 00F0 12 28		strb	r2, [r1, #PTC_TCR]
+ 250 00F2 10 29		strb	r0, [r1, #PTC_TMR]
+ 251 00F4 01 24	    push r1
+ 252 00F6 16 5C	    bl  ptc_clr_irq
+ 253 00F8 01 04	    pop r1
+ 254 00FA 02 60		mov	r2, #PTC_CMD_START
+ 255 00FC 12 28		strb	r2, [r1, #PTC_TCR]
+ 256 00FE 0F 04		pop pc
+ 257           	
+ 258           	; Rotina:    ptc_start
+ 259           	; Descricao: Habilita a contagem no periferico pTC.
+ 260           	; Entradas:  -
+ 261           	; Saidas:    -
+ 262           	; Efeitos:   -
+ 263           	ptc_start:
+ 264 0100 00 64		mov	r0, #PTC_ADDRESS & 0xFF
+ 265 0102 F0 7F	    movt r0, #PTC_ADDRESS >> 8 
+ 266 0104 01 60		mov	r1, #PTC_CMD_START
+ 267 0106 01 28		strb	r1, [r0, #PTC_TCR]
+ 268 0108 0F B7		mov	pc, lr
+ 269           	
+ 270           	; Rotina:    ptc_stop
+ 271           	; Descricao: Para a contagem no periferico pTC.
+ 272           	; Entradas:  -
+ 273           	; Saidas:    -
+ 274           	; Efeitos:   O valor do registo TC do periferico e colocado a zero.
+ 275           	ptc_stop:
+ 276 010A 00 64	    mov	r0, #PTC_ADDRESS & 0xFF
+ 277 010C F0 7F	    movt r0, #PTC_ADDRESS >> 8 
+ 278 010E 11 60		mov	r1, #PTC_CMD_STOP
+ 279 0110 01 28		strb	r1, [r0, #PTC_TCR]
+ 280 0112 0F B7		mov	pc, lr
+ 281           	
+ 282           	ptc_restart:
+ 283 0114 0E 24	    push lr
+ 284 0116 F9 5F	    bl ptc_stop
+ 285 0118 F3 5F	    bl ptc_start
+ 286 011A 0F 04	    pop pc
+ 287           	
+ 288           	; Rotina:    ptc_get_value
+ 289           	; Descricao: Devolve o valor corrente da contagem do periferico pTC.
+ 290           	; Entradas:  -
+ 291           	; Saidas:    R0 - O valor corrente do registo TC do periferico.
+ 292           	; Efeitos:   -
+ 293           	ptc_get_value:
+ 294 011C 01 64	    mov	r1, #PTC_ADDRESS & 0xFF
+ 295 011E F1 7F	    movt r1, #PTC_ADDRESS >> 8 
+ 296 0120 10 0A		ldrb	r0, [r1, #PTC_TC]
+ 297 0122 0F B7		mov	pc, lr
+ 298           	
+ 299           	; Rotina:    ptc_clr_irq
+ 300           	; Descricao: Sinaliza o periferico pTC que foi atendido um pedido de
+ 301           	;            interrupção.
+ 302           	; Entradas:  -
+ 303           	; Saidas:    -
+ 304           	; Efeitos:   -
+ 305           	ptc_clr_irq:
+ 306 0124 00 64	    mov	r0, #PTC_ADDRESS & 0xFF
+ 307 0126 F0 7F	    movt r0, #PTC_ADDRESS >> 8 
+ 308 0128 01 60	    mov r1,#0
+ 309 012A 01 2B		strb	r1, [r0, #PTC_TIR]
+ 310 012C 0F B7		mov	pc, lr
+ 311           	
+ 312           	
+ 313           	
+ 314           	
+ 315           	
+ 316           	crossing_time_addr:
+ 317 012E 36 01	    .word crossing_time
+ 318           	
+ 319           	current_cross_t_addr:
+ 320 0130 40 01	    .word current_crossing_t
+ 321           	isr_addr:
+ 322 0132 5A 00	    .word isr
+ 323           	
+ 324           	
+ 325           	
+ 326           	
+ 327           	    .data
+ 328           	
+ 329           	blink_tick:
+ 330 0134 00 00	    .word 0
+ 331           	crossing_time:
+ 332          	    .word 10, 20, 30, 45, 60
+ 332 0136 0A 00 14 00 1E 00 2D 00 3C 00
+ 333           	current_crossing_t:
+ 334 0140 0A 00	    .word 10
+ 335           	time:
+ 336 0142 00 00	    .word 0
+ 337           	LED_state:
+ 338 0144 00	    .byte 0
+ 339           	outport_img:
+ 340 0145 00	    .byte 0
+ 341           	
+ 342           	    .stack
+ 343 0146 00   	    .space STACK_SIZE
+ 343 .... ..
+ 343 0185 00
+ 344           	stack_top:
+ 344           	

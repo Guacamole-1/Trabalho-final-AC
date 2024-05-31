@@ -21,16 +21,18 @@
 	.equ	PTC_CMD_STOP, 1        ; Comando para parar a contagem no pTC
 
 
-	.equ	CLK_FREQ, 0x63;Hz      ; tempo para fazer interrupt 0.1s
-
+	.equ	CLK_FREQ, 0x1; 0x63Hz quando clock é 1kHz      ; tempo para fazer interrupt 0.1s
+                        ;1 quando clock é 10 Hz
     .equ    BLINK_TIME, 5 ; (500 ms)
 
 
 .section startup
     b   _start
-    b   .   ; meter isr com o propósito de aumentar a variavel crossing_time
+    mov r0, #isr
+    mov pc, r0   ; isr com o propósito de aumentar a variavel crossing_time
 _start:
-    mov sp, #stack_top_addr
+    mov r0, #stack_top_addr
+    ldr sp, [r0]
     mov r0, pc
     add lr, r0, #4
     ldr pc, main_addr
@@ -39,7 +41,16 @@ main_addr:
     .word main
 
     .text
+stack_top_addr:
+    .word stack_top
+
+
 main:
+    bl blink_reset
+    mov r0, #0
+    mov	r1, #LED_state_addr
+    str r0, [r1]
+    bl outport_write
     mov r0,#CLK_FREQ
     bl ptc_init
 	mrs	r0, cpsr
@@ -47,8 +58,11 @@ main:
 	orr	r0, r0, r1
 	msr	cpsr, r0
 main_loop:
-    bl inport_read
-    bl config_mode
+    ;bl inport_read
+    ;bl config_mode
+    ;bl blink_get_ticks
+    ;bl outport_write
+    bl LED_blink
 
     b main_loop
 
@@ -64,26 +78,32 @@ config_mode:
     bne config_mode_return 
     mov r1, #TIME_MASK ; Verificar qual é o time no inport
     and r2, r0, r1 ; current crossing time
-    mov r1, #crossing_time_addr
+    ;mov r1, #crossing_time_addr
     lsl r2, r2, #1
     ldr r0, [r1, r2]
-    mov r1, #current_crossing_t ; mudar o current time
+    ;mov r1, #current_crossing_t ; mudar o current time
     str r0, [r1]
 config_mode_return:
     mov pc, lr
 
-LED_blink: ; assumindo que começa do 0
-    mov r1, #YELLOW << L1 ; meter traffic lights a amarelo
-    mov r2, #RED << L2 ; Meter pedestrian lights a vermlho
-    and r3, r2, r1 ; L1 a amarelo e L2 a vermelho
+LED_blink:
+    push lr
+    mov r4, #YELLOW << L1 ; meter traffic lights a amarelo
+    mov r5, #RED << L2 ; Meter pedestrian lights a vermlho (é melhor meter isto quando entra no config!!!)
+    ;orr r3, r4, r5 ; L1 a amarelo e L2 a vermelho 
     bl blink_get_ticks
-    mov r2, #5
-    cmp r0,r2
+    mov r3, #5
+    cmp r0,r3
     blo LED_blink_return
-
-
+    mov r0,r4
+    bl LED_state_toggle
+    orr r0,r0,r5
+    bl outport_write
+    bl blink_reset
 LED_blink_return:
-    mov pc, lr
+    pop pc
+
+
 
 ; Rotina:    isr
 ; Descricao: Incrementa o valor da variável global time e blink_tick.
@@ -96,8 +116,8 @@ isr:
 	push r1
     push r2
     mov r1, #blink_tick_addr
-    ldr r2,[r1]
-	add r2,r1,#1 ; somar blink_tick
+    ldr r0,[r1]
+	add r0,r0,#1 ; somar blink_tick
 	str r0,[r1]
     mov r1, #time_addr
 	ldr r0, [r1]
@@ -125,13 +145,47 @@ isr_jump:
 ;            eventuais pedidos de interrupcao pendentes e iniciando com o
 ;            valor zero a variavel global sysclk
 blink_reset:
-	push lr
+    push r1
+    push r0
 	mov r1, #blink_tick_addr
 	mov r2, #0
 	str r2, [r1]
-	bl ptc_init
-	pop pc
+	;bl ptc_init
+    pop r0
+    pop r1
+	mov pc, lr
 
+;r0- bits to toggle(mask) r2- LED_state
+LED_state_toggle: ; FAZER e state reset
+    push r1
+    push r2
+    push r3
+    mov	r3, #LED_state_addr
+    ldr r2, [r3]
+    eor r1, r2, r0
+    and r0, r1,r0
+    str r0, [r3]
+    mov r1, #0
+    pop r3
+    pop r2
+    pop r1
+    mov pc, lr
+
+LED_state_reset:
+    push r1
+    push r2
+    push r3
+    mov	r1, #LED_state_addr
+    ldr r2, [r1]
+    mov r3, #0
+    str r3,[r1]
+    pop r3
+    pop r2
+    pop r1
+    mov pc, lr
+
+LED_state_addr:
+    .word LED_state
 
 ; Rotina:    sysclk_get_ticks
 ; Descricao: Devolve o valor corrente da variável global sysclk.
@@ -140,15 +194,22 @@ blink_reset:
 ; Saidas:    r0 - CLK
 ; Efeitos:   -
 blink_get_ticks:
+    push r1
 	mov r1, #blink_tick_addr
 	ldr r0, [r1]
+    pop r1
 	mov pc, lr
+
+blink_tick_addr:
+    .word blink_tick
 
 time_get_ticks:
 	mov r1, #time_addr
 	ldr r0, [r1]
 	mov pc, lr
 
+time_addr:
+    .word time
 
 ; Rotina:    inport_read
 ; Descricao: Adquire e devolve o valor corrente do porto de entrada.
@@ -187,7 +248,9 @@ ptc_init:
 	mov	r2, #PTC_CMD_STOP
 	strb	r2, [r1, #PTC_TCR]
 	strb	r0, [r1, #PTC_TMR]
+    push r1
     bl  ptc_clr_irq
+    pop r1
 	mov	r2, #PTC_CMD_START
 	strb	r2, [r1, #PTC_TCR]
 	pop pc
@@ -242,25 +305,27 @@ ptc_get_value:
 ptc_clr_irq:
     mov	r0, #PTC_ADDRESS & 0xFF
     movt r0, #PTC_ADDRESS >> 8 
+    mov r1,#0
 	strb	r1, [r0, #PTC_TIR]
 	mov	pc, lr
 
-blink_tick_addr:
-    .word blink_tick
 
-time_addr:
-    .word time
+
+
 
 crossing_time_addr:
     .word crossing_time
 
 current_cross_t_addr:
     .word current_crossing_t
+isr_addr:
+    .word isr
 
-stack_top_addr:
-    .word stack_top
+
+
 
     .data
+
 blink_tick:
     .word 0
 crossing_time:
@@ -269,6 +334,10 @@ current_crossing_t:
     .word 10
 time:
     .word 0
+LED_state:
+    .byte 0
+outport_img:
+    .byte 0
 
     .stack
     .space STACK_SIZE
