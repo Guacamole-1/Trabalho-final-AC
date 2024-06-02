@@ -59,13 +59,39 @@ main:
 	msr	cpsr, r0
 main_loop:
     ;bl inport_read
-    ;bl config_mode
-    ;bl blink_get_ticks
-    ;bl outport_write
+
     bl LED_blink
 
     b main_loop
 
+
+;Função para ver o inport
+check_inport:
+;if config == 0
+    bl      inport_read
+    mov     r1, #PB_MASK
+    mov     r2, #CONFIG_MASK
+;if config == 1
+    mov     r3, #TIME_MASK
+
+;input -> r0 - PB (mask)
+;output -> rising edge (0 - false, 1 - true) 
+check_rising_edge:
+	ldr		r2, pedestrian_button_addr ;; FALTA TESTAR NO DBG 00 10 11 01
+	mov		r1, r0
+	mov		r0, #0	
+	ldrb	r3, [r2]
+	and 	r3,r3,r3
+	bzc		check_rising_edge_l0		; continua se pedestrian button anterior == 0
+	and		r1,r1,r1					
+	bzs		check_rising_edge_l0		; continua se pedestrian button agora == 1		
+	mov		r0, #1						; rising edge == true
+check_rising_edge_l0:
+	strb	r1, [r2]					; atualizar estado do pedestrian button
+	mov		pc, lr						; return rising_edge
+
+pedestrian_button_addr:
+    .word pedestrian_button
 
 ; Rotina:    config_check
 ; Descricao: verifica config
@@ -73,18 +99,18 @@ main_loop:
 ; Saidas:    
 ; Efeitos:   R1- temp  R2- time
 config_mode:
-    mov r1, #CONFIG_MASK ; Verificar se Config == 1
-    and r2, r0, r1
-    bne config_mode_return 
-    mov r1, #TIME_MASK ; Verificar qual é o time no inport
-    and r2, r0, r1 ; current crossing time
+    mov     r1, #CONFIG_MASK ; Verificar se Config == 1
+    and     r2, r0, r1
+    bne     config_mode_return 
+    mov     r1, #TIME_MASK ; Verificar qual é o time no inport
+    and     r2, r0, r1 ; current crossing time
     ;mov r1, #crossing_time_addr
-    lsl r2, r2, #1
-    ldr r0, [r1, r2]
+    lsl     r2, r2, #1
+    ldr     r0, [r1, r2]
     ;mov r1, #current_crossing_t ; mudar o current time
-    str r0, [r1]
+    str     r0, [r1]
 config_mode_return:
-    mov pc, lr
+    mov     pc, lr
 
 LED_blink:
     push lr
@@ -176,7 +202,6 @@ LED_state_reset:
     push r2
     push r3
     mov	r1, #LED_state_addr
-    ldr r2, [r1]
     mov r3, #0
     str r3,[r1]
     pop r3
@@ -336,7 +361,7 @@ time:
     .word 0
 LED_state:
     .byte 0
-outport_img:
+pedestrian_button:
     .byte 0
 
     .stack
