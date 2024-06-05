@@ -81,7 +81,9 @@ ped_button_loop:
     bzc     config_init         
     bl      check_rising_edge
     bl      get_time
-    bl      outport_write
+    and     r0,r0,r0
+    bzs     main_led_init     
+    bl      LED_output 
     b       ped_button_loop
     
       
@@ -90,9 +92,12 @@ config_init:
     mov     r1, #YELLOW << L3;Leds estáticos
     bl      store_LED_states
 config_loop:
-    bl      get_config
-    bl      outport_write
-    b       main_loop
+    bl      inport_read
+    bl      check_inport        ;atualizar variaveis
+    bl      check_config        ;verificar se estamos em config
+    bzs     main_led_init
+    bl      LED_output 
+    b       config_loop
 
 check_config:
     push lr
@@ -119,9 +124,10 @@ check_inport:
     and     r3, r3, r0
     lsr     r3, r3, #5
     ldr     r0, crossing_time_addr
-    ldrb    r3, [r0,r3]
+    lsl     r3, r3, #1
+    ldr     r3, [r0,r3]
     ldr     r0, current_cross_t_addr
-    strb    r3, [r0]
+    str     r3, [r0]
 check_inport_return:
     pop     pc
 
@@ -129,7 +135,7 @@ increment_time:
     push    lr
     bl      get_time
     ldr     r2, current_cross_t_addr
-    ldrb    r2, [r2]
+    ldr     r2, [r2]
     add     r0,r2,r0
 	str     r0, [r1]    ; r1 é time_addr de "bl get_time"
     pop     pc
@@ -438,6 +444,10 @@ blink_tick:
     .word 0
 time:                              ;tempo para os pedestrians
     .word 0
+crossing_time:                      
+    .word 100, 200, 300, 450, 600       ;tempo em decimas de segundo
+current_crossing_t:                 ;tempo usado para aumentar o time
+    .word 100
 LED_flashing:
     .byte 0
 LED_flashing_mask:
@@ -448,10 +458,6 @@ past_pedestrian_button:
     .byte 0
 config:
     .byte 0
-crossing_time:
-    .byte 10, 20, 30, 45, 60
-current_crossing_t:                 ;tempo usado para aumentar o time
-    .byte 10
 LED_static:
     .byte 0
 
