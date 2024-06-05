@@ -21,8 +21,8 @@
 	.equ	PTC_CMD_STOP, 1        ; Comando para parar a contagem no pTC
 
 
-	.equ	CLK_FREQ, 0x1; 0x63Hz quando clock é 1kHz      ; tempo para fazer interrupt 0.1s
-                        ;1 quando clock é 10 Hz
+	.equ	CLK_FREQ, 9 ; 0x63Hz quando clock é 1kHz      ; tempo para fazer interrupt 0.1s
+                        ;9 quando clock é 100 Hz
     .equ    BLINK_TIME, 5 ; (500 ms)
 
 
@@ -75,6 +75,11 @@ ped_button_init: ;inicialização dos LEDs
     mov     r1, #(GREEN << L2 | RED << L1 | GREEN << L3);Leds estáticos
     bl      store_LED_states    
 ped_button_loop:
+    bl      inport_read
+    bl      check_inport        ;atualizar variaveis
+    bl      check_config        ;verificar se estamos em config
+    bzc     config_init         
+    bl      check_rising_edge
     bl      get_time
     bl      outport_write
     b       ped_button_loop
@@ -221,8 +226,9 @@ isr:
 	str     r0,[r1]
     bl      get_time
     and     r0,r0,r0
-    bzc     isr_jump
+    bzs     isr_jump
     sub     r0,r0,#1 ; subtrair 1 a time
+    str     r0,[r1]  ; r1 de get_time
 isr_jump:    
 	bl ptc_clr_irq
     pop r2
